@@ -6,7 +6,7 @@ import org.orpheus.domain.ingest.TagsToWrite;
 
 /**
  * Writes the tags of ADR-0021 on a library copy, never on the source. Writes the fields of
- * {@link TagsToWrite#values()} and the original values in {@code ORPHEUS_ORIGINALE_<CAMPO>}; every
+ * {@link TagsToWrite#values()} and the original values in {@code ORPHEUS_ORIGINAL_<FIELD>}; every
  * other field of the file stays as it was (rule T25).
  */
 public interface TagWriterPort {

@@ -6,7 +6,7 @@ import java.util.Objects;
 
 /**
  * Result of the rules of ADR-0021 for a file: the values to write, the original values to keep in the
- * file ({@code ORPHEUS_ORIGINALE_<CAMPO>}, rule T24) and the corrections to record in the database
+ * file ({@code ORPHEUS_ORIGINAL_<FIELD>}, rule T24) and the corrections to record in the database
  * (rule T26). A field absent from {@code values} must not be touched.
  */
 public record TagsToWrite(Map<TagField, List<String>> values,
