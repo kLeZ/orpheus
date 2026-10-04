@@ -1,0 +1,35 @@
+<configuration xmlns="https://github.com/qoomon/maven-git-versioning-extension"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="https://github.com/qoomon/maven-git-versioning-extension https://qoomon.github.io/maven-git-versioning-extension/configuration-9.4.0.xsd">
+    <refs>
+        <ref type="branch">
+            <pattern>main</pattern>
+            <version>${describe.tag.version}</version>
+        </ref>
+        <ref type="branch">
+            <pattern>develop</pattern>
+            <version>${version.next}-SNAPSHOT</version>
+        </ref>
+        <ref type="branch">
+            <pattern><![CDATA[(feature|bugfix|support)/(?<name>.+)]]></pattern>
+            <version>${ref.name}-SNAPSHOT</version>
+        </ref>
+        <ref type="branch">
+            <pattern><![CDATA[release/(?<version>.+)]]></pattern>
+            <version>${ref.version}</version>
+        </ref>
+        <ref type="branch">
+            <pattern><![CDATA[hotfix/(?<version>.+)]]></pattern>
+            <version>${ref.version}</version>
+        </ref>
+        <!-- git-flow on this repository uses no "v" prefix on the tags (empty gitflow.prefix.versiontag,
+             see git config), but it is accepted anyway if present. -->
+        <ref type="tag">
+            <pattern><![CDATA[v?(?<version>\d+\.\d+\.\d+.*)]]></pattern>
+            <version>${ref.version}</version>
+        </ref>
+    </refs>
+    <rev>
+        <version>${commit.short}-SNAPSHOT</version>
+    </rev>
+</configuration>

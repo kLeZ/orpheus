@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.orpheus</groupId>
+    <artifactId>orpheus-parent</artifactId>
+    <version>0.1.0</version>
+    <packaging>pom</packaging>
+
+    <name>Orpheus</name>
+    <description>An investigative archivist for messy music libraries (docs/DESIGN.md).</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.release>26</maven.compiler.release>
+        <formatter-maven-plugin.version>2.29.0</formatter-maven-plugin.version>
+        <git-hooks-maven-plugin.version>1.1.0</git-hooks-maven-plugin.version>
+        <versions-maven-plugin.version>2.19.1</versions-maven-plugin.version>
+        <maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
+        <compiler-plugin.version>3.15.0</compiler-plugin.version>
+        <surefire-plugin.version>3.5.4</surefire-plugin.version>
+        <jandex-maven-plugin.version>3.2.7</jandex-maven-plugin.version>
+        <!-- ADR-007: Quarkus application framework. LTS version, not the latest stream, for a project
+             maintained by a single person (fewer forced update cycles). -->
+        <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
+        <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
+        <quarkus.platform.version>3.33.2.1</quarkus.platform.version>
+        <!-- ADR-010: SQLite through the Hibernate dialect maintained by the community, not an official one. -->
+        <hibernate-community-dialects.version>7.0.2.Final</hibernate-community-dialects.version>
+        <sqlite-jdbc.version>3.49.1.0</sqlite-jdbc.version>
+        <!-- ADR-006: tag I/O for the 6 supported formats. -->
+        <jaudiotagger.version>3.0.1</jaudiotagger.version>
+        <!-- ADR-006: compile-time null safety in the absence of Kotlin null safety. -->
+        <jspecify.version>1.0.0</jspecify.version>
+        <assertj.version>3.27.3</assertj.version>
+    </properties>
+
+    <modules>
+        <!-- ADR-009: the domain depends on none of the modules below, only the other way round. -->
+        <module>orpheus-domain</module>
+        <!-- Adapters (ADR-009): persistence, external services, tag I/O, user interfaces. -->
+        <module>orpheus-persistence</module>
+        <module>orpheus-musicbrainz-client</module>
+        <module>orpheus-acoustid-client</module>
+        <module>orpheus-tagging</module>
+        <module>orpheus-cli</module>
+        <!-- Single executable Quarkus artifact (ADR-007): aggregates domain and adapters. -->
+        <module>orpheus-app</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${quarkus.platform.group-id}</groupId>
+                <artifactId>${quarkus.platform.artifact-id}</artifactId>
+                <version>${quarkus.platform.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate.orm</groupId>
+                <artifactId>hibernate-community-dialects</artifactId>
+                <version>${hibernate-community-dialects.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.xerial</groupId>
+                <artifactId>sqlite-jdbc</artifactId>
+                <version>${sqlite-jdbc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.jthink</groupId>
+                <artifactId>jaudiotagger</artifactId>
+                <version>${jaudiotagger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jspecify</groupId>
+                <artifactId>jspecify</artifactId>
+                <version>${jspecify.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>${assertj.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>net.revelc.code.formatter</groupId>
+                <artifactId>formatter-maven-plugin</artifactId>
+                <version>${formatter-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>format</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <lineEnding>LF</lineEnding>
+                    <encoding>UTF-8</encoding>
+                    <configFile>${maven.multiModuleProjectDirectory}/formatter-config.xml</configFile>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven-enforcer-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>enforce-maven</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>3.9.0</version>
+                                </requireMavenVersion>
+                                <!-- ADR-006: JDK 26/27 train, for mature virtual threads (ADR-011). -->
+                                <requireJavaVersion>
+                                    <version>[26,)</version>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>${versions-maven-plugin.version}</version>
+                <configuration>
+                    <ruleSet>
+                        <ignoreVersions>
+                            <ignoreVersion>
+                                <type>regex</type>
+                                <version>.+-?([Aa]lpha|[Bb]eta|rc|[Pp]review|SNAPSHOT|dev|RC|M)-?\d*</version>
+                            </ignoreVersion>
+                        </ignoreVersions>
+                    </ruleSet>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>io.github.pepperkit</groupId>
+                <artifactId>git-hooks-maven-plugin</artifactId>
+                <version>${git-hooks-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>initHooks</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <hooks>
+                        <pre-commit>./mvnw -B formatter:validate &amp;&amp; rumdl check .</pre-commit>
+                        <!-- clean: without it, a changed interface signature can leave stale test classes and a
+                             false green build (seen on 2026-09-26 with FingerprintLookupPort). -->
+                        <pre-push>./mvnw -B clean test</pre-push>
+                    </hooks>
+                </configuration>
+            </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>${quarkus.platform.group-id}</groupId>
+                    <artifactId>quarkus-maven-plugin</artifactId>
+                    <version>${quarkus.platform.version}</version>
+                    <extensions>true</extensions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${compiler-plugin.version}</version>
+                    <configuration>
+                        <parameters>true</parameters>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${surefire-plugin.version}</version>
+                    <configuration>
+                        <systemPropertyVariables>
+                            <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                        </systemPropertyVariables>
+                    </configuration>
+                </plugin>
+                <!-- ADR-008: the beans of every library module have to be indexed for Arc (Quarkus CDI)
+                     to discover them when the module is a dependency of orpheus-app, not the module
+                     built directly. Without this plugin the CDI wiring fails silently. -->
+                <plugin>
+                    <groupId>io.smallrye</groupId>
+                    <artifactId>jandex-maven-plugin</artifactId>
+                    <version>${jandex-maven-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>jandex</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

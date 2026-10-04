@@ -1,0 +1,17 @@
+# Markdown lint (docs/, ADRs, README): rumdl, rules compatible with markdownlint.
+# https://github.com/rvben/rumdl
+
+[global]
+# MD041: the first line does not have to be a heading; MD034: bare URLs allowed.
+# MD076 (rumdl only, it does not exist in markdownlint): blank lines between list items separate groups
+# of items on purpose (docs/TODO.md).
+disable = ["MD041", "MD034", "MD076"]
+
+[MD012]
+maximum = 1
+
+# Lines up to 120 characters, excluding code blocks and tables.
+[MD013]
+code-blocks = false
+line-length = 120
+tables = false

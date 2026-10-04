@@ -1,0 +1,4 @@
+# JDK train required by ADR-006, also enforced by the enforcer of the root pom.xml
+# (requireJavaVersion [26,)). Run `sdk env` in this directory before build/push
+# if sdkman_auto_env is not active globally.
+java=26-tem

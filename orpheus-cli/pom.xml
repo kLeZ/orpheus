@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.orpheus</groupId>
+        <artifactId>orpheus-parent</artifactId>
+        <version>0.1.0</version>
+        <relativePath>..</relativePath>
+    </parent>
+
+    <artifactId>orpheus-cli</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Orpheus :: CLI</name>
+    <description>
+        Command line commands (import, and in the future the review actions) through the Quarkus Picocli
+        extension, injecting the domain use cases through Arc (ADR-012), plus the cache decorators of
+        the external responses.
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.orpheus</groupId>
+            <artifactId>orpheus-domain</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <!-- Only for MusicBrainzUserAgentConfiguration: the command line option overriding the
+                 MusicBrainz User-Agent must be able to override at runtime the HTTP contact used by
+                 the concrete adapter (ADR-014). The domain ports (FingerprintLookupPort,
+                 ReleaseLookupPort) stay injected only through the orpheus-domain interfaces: this is
+                 the only exception, CLI configuration plumbing, not a coupling to domain logic. -->
+            <groupId>org.orpheus</groupId>
+            <artifactId>orpheus-musicbrainz-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-picocli</artifactId>
+        </dependency>
+        <dependency>
+            <!-- JSON serialization of the local cache of the AcoustID/MusicBrainz responses
+                 (adapter/ExternalResponseCache). -->
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.smallrye</groupId>
+                <artifactId>jandex-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

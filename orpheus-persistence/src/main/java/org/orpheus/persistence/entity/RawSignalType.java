@@ -1,0 +1,10 @@
+package org.orpheus.persistence.entity;
+
+public enum RawSignalType {
+	MATCH_DISTANCE,
+	DURATION_DEVIATION,
+	SPECTRAL_ANOMALY,
+	FINGERPRINT_SCORE,
+	MISSING_AUDIO,
+	TEXT_CLASSIFICATION_CONFIDENCE
+}

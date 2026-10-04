@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.orpheus</groupId>
+        <artifactId>orpheus-parent</artifactId>
+        <version>0.1.0</version>
+        <relativePath>..</relativePath>
+    </parent>
+
+    <artifactId>orpheus-domain</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Orpheus :: Domain</name>
+    <description>
+        Model (Track/Album/LedgerEntry/ReviewItem), ports to the outside, tiered identification
+        engine and review queue priority formula (SPEC.md, ADR-004, ADR-009, ADR-015, ADR-016). No
+        infrastructure dependency: no Quarkus, no Hibernate, no HTTP client (ADR-009), a constraint
+        enforced below at build level too, not only by package convention.
+    </description>
+
+    <dependencies>
+        <!-- Only the CDI annotations (JSR-330 + Jakarta CDI), not an implementation: they let the
+             domain declare itself as a bean discoverable by Arc without depending on Quarkus/Arc. -->
+        <dependency>
+            <groupId>jakarta.inject</groupId>
+            <artifactId>jakarta.inject-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.enterprise</groupId>
+            <artifactId>jakarta.enterprise.cdi-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.smallrye</groupId>
+                <artifactId>jandex-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <!-- ADR-008/009: a domain module that cannot even declare an infrastructure
+                         dependency is a verifiable constraint, not just a package convention kept by
+                         discipline. -->
+                    <execution>
+                        <id>enforce-domain-purity</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <bannedDependencies>
+                                    <excludes>
+                                        <exclude>io.quarkus</exclude>
+                                        <exclude>io.quarkus.platform</exclude>
+                                        <exclude>org.hibernate</exclude>
+                                        <exclude>org.hibernate.orm</exclude>
+                                        <exclude>jakarta.persistence</exclude>
+                                        <exclude>jakarta.ws.rs</exclude>
+                                        <exclude>org.jboss.resteasy*</exclude>
+                                        <exclude>net.jthink</exclude>
+                                        <exclude>org.xerial</exclude>
+                                    </excludes>
+                                </bannedDependencies>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

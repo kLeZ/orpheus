@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+*~
+.*.kate-swp
+*.log
+
+target/
+.git-versioned-pom.xml
+*.db
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
